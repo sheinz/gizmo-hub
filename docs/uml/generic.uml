@@ -1,0 +1,69 @@
+@startuml
+actor User
+participant "gizmo_relay_box:\nrelay_box1" as gizmo_relay_box
+participant gizmo_hub
+participant mqtt_broker
+participant openHAB
+
+User -> gizmo_relay_box: Turn on
+activate gizmo_relay_box
+gizmo_relay_box --> gizmo_hub: Update status
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+
+...
+
+User -> gizmo_relay_box: Push button 2
+activate gizmo_relay_box
+gizmo_relay_box -> gizmo_relay_box: Turn on relay2
+gizmo_relay_box --> gizmo_hub: Update status
+deactivate gizmo_relay_box
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+
+...
+
+User --> openHAB: Turn on relay 1
+activate openHAB
+openHAB --> mqtt_broker: publish(on)
+deactivate openHAB
+activate mqtt_broker
+mqtt_broker --> gizmo_hub: notify(on)
+deactivate mqtt_broker
+activate gizmo_hub
+gizmo_hub --> gizmo_relay_box: send command
+deactivate gizmo_hub
+activate gizmo_relay_box
+gizmo_relay_box -> gizmo_relay_box: Turn on relay1
+gizmo_relay_box --> gizmo_hub: Update status
+deactivate gizmo_relay_box
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+
+...
+
+User -> gizmo_relay_box: Turn off
+deactivate gizmo_relay_box
+
+...
+
+gizmo_hub -> gizmo_hub: relay_box1 \ntime out
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+@enduml
