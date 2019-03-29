@@ -1,0 +1,30 @@
+@startuml
+title Setup and initialization
+
+actor User
+participant "gizmo_relay_box:\nrelay_box1" as gizmo_relay_box
+participant gizmo_hub
+participant mqtt_broker
+participant openHAB
+
+User -> gizmo_hub: Add relay_box1 configuration\n (e.g. address, parameters)
+
+User -> gizmo_relay_box: Configure  gizmo_hub address
+
+User -> gizmo_relay_box: Turn on
+activate gizmo_relay_box
+gizmo_relay_box -> gizmo_hub: Connect
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: subscribe(commands)
+gizmo_relay_box <- gizmo_hub: Ok
+deactivate gizmo_hub
+gizmo_relay_box --> gizmo_hub: Update status
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+
+
+@enduml

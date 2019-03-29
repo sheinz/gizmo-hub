@@ -1,0 +1,34 @@
+@startuml
+title relay_box1 is idle
+
+participant "gizmo_relay_box:\nrelay_box1" as gizmo_relay_box
+participant gizmo_hub
+participant mqtt_broker
+participant openHAB
+
+activate gizmo_relay_box
+
+ref over gizmo_relay_box, gizmo_hub: initialization
+loop each specified timeout (e.g. 30 seconds)
+    gizmo_relay_box --> gizmo_hub: Update status
+    activate gizmo_hub
+    gizmo_hub --> mqtt_broker: Publish status
+    deactivate gizmo_hub
+    activate mqtt_broker
+    mqtt_broker --> openHAB: Notify
+    deactivate mqtt_broker
+end
+[-> gizmo_relay_box: power off
+deactivate gizmo_relay_box
+
+...timeout (e.g. 60 seconds)...
+
+gizmo_hub -> gizmo_hub: relay_box1 \ntime out
+activate gizmo_hub
+gizmo_hub --> mqtt_broker: Publish status
+deactivate gizmo_hub
+activate mqtt_broker
+mqtt_broker --> openHAB: Notify
+deactivate mqtt_broker
+
+@enduml
